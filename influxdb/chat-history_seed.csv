@@ -1,0 +1,30 @@
+#datatype measurement,tag,tag,tag,tag,tag,tag,string,string,dateTime:RFC3339
+_measurement,event-type,minute-format,hour-format,day,month,year,user,minute-event,_time
+chat-history,enter-the-room,5pm,5pm,16,7,2023,Bob,enters the room,2023-07-16T17:00:00Z
+chat-history,enter-the-room,5:05pm,5pm,16,7,2023,Kate,enters the room,2023-07-16T17:05:00Z
+chat-history,comment,5:15pm,5pm,16,7,2023,Bob,"comments: ""Hey, Kate - high five?""",2023-07-16T17:15:00Z
+chat-history,high-five-another-user,5:17pm,5pm,16,7,2023,Kate,high-fives Bob,2023-07-16T17:17:00Z
+chat-history,leave-the-room,5:18pm,5pm,16,7,2023,Bob,leaves,2023-07-16T17:18:00Z
+chat-history,comment,5:20pm,5pm,16,7,2023,Kate,"comments: ""Oh, typical""",2023-07-16T17:20:00Z
+chat-history,leave-the-room,5:21pm,5pm,16,7,2023,Kate,leaves,2023-07-16T17:21:00Z
+chat-history,enter-the-room,6:00pm,6pm,16,7,2023,Nuno,enters the room,2023-07-16T18:00:00Z
+chat-history,enter-the-room,6:01pm,6pm,16,7,2023,Sophie,enters the room,2023-07-16T18:01:00Z
+chat-history,enter-the-room,6:10pm,6pm,16,7,2023,Aurora,enters the room,2023-07-16T18:10:00Z
+chat-history,high-five-another-user,6:17pm,6pm,16,7,2023,Aurora,high-fives Sophie,2023-07-16T17:17:00Z
+chat-history,high-five-another-user,6:18pm,6pm,16,7,2023,Aurora,high-fives Nuno,2023-07-16T17:18:00Z
+chat-history,high-five-another-user,6:19pm,6pm,16,7,2023,Aurora,high-fives Nala,2023-07-16T17:19:00Z
+chat-history,comment,6:20pm,6pm,16,7,2023,Nuno,"comments: ""Wazza""",2023-07-16T18:20:00Z
+chat-history,comment,6:21pm,6pm,16,7,2023,Sophie,"comments: ""Yellow""",2023-07-16T18:21:00Z
+chat-history,comment,6:22pm,6pm,16,7,2023,Aurora,"comments: ""Hi there""",2023-07-16T18:22:00Z
+chat-history,comment,6:23pm,6pm,16,7,2023,Nuno,"comments: ""head and shoulders""",2023-07-16T18:23:00Z
+chat-history,comment,6:24pm,6pm,16,7,2023,Sophie,"comments: ""knees and toes""",2023-07-16T18:24:00Z
+chat-history,comment,6:25pm,6pm,16,7,2023,Aurora,"comments: ""knees and toes""",2023-07-16T18:25:00Z
+chat-history,comment,6:26pm,6pm,16,7,2023,Nuno,"comments: ""and eyes""",2023-07-16T18:26:00Z
+chat-history,comment,6:27pm,6pm,16,7,2023,Sophie,"comments: ""and ears""",2023-07-16T18:27:00Z
+chat-history,comment,6:28pm,6pm,16,7,2023,Aurora,"comments: ""and mouth""",2023-07-16T18:28:00Z
+chat-history,comment,6:29pm,6pm,16,7,2023,Nuno,"comments: ""and nose""",2023-07-16T18:29:00Z
+chat-history,comment,6:30pm,6pm,16,7,2023,Sophie,"comments: ""heaaaad""",2023-07-16T18:30:00Z
+chat-history,comment,6:31pm,6pm,16,7,2023,Aurora,"comments: ""and shoulders""",2023-07-16T18:31:00Z
+chat-history,comment,6:32pm,6pm,16,7,2023,Nuno,"comments: ""knees and toes""",2023-07-16T18:32:00Z
+chat-history,comment,6:33pm,6pm,16,7,2023,Sophie,"comments: ""knees and toes""",2023-07-16T18:33:00Z
+chat-history,comment,6:34pm,6pm,16,7,2023,Aurora,"comments: ""What's up doc?""",2023-07-16T18:34:00Z

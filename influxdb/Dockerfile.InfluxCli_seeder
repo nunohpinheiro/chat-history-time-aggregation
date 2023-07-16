@@ -1,0 +1,9 @@
+FROM alpine:3.18.2
+
+RUN  apk add --no-cache wget
+
+RUN wget https://dl.influxdata.com/influxdb/releases/influxdb2-client-2.7.3-linux-amd64.tar.gz \
+  && tar xvzf influxdb2-client-2.7.3-linux-amd64.tar.gz
+
+ENTRYPOINT ./influx config create --config-name config-chat-history --host-url http://influxdb:8086 --org myorg --token myadmintoken --active \
+  && ./influx write --bucket mybucket --format=csv --file chat-history_seed.csv

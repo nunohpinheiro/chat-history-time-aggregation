@@ -1,0 +1,41 @@
+version: '3.8'
+
+services:
+
+  influxdb:
+    image: influxdb:2.7.1-alpine
+    container_name: influxdb-chat-history
+    ports:
+      - "8086:8086"
+    security_opt:
+      - no-new-privileges:true
+    restart: unless-stopped
+    environment:
+      - DOCKER_INFLUXDB_INIT_MODE=setup
+      - DOCKER_INFLUXDB_INIT_USERNAME=myusername
+      - DOCKER_INFLUXDB_INIT_PASSWORD=mypassword
+      - DOCKER_INFLUXDB_INIT_ORG=myorg
+      - DOCKER_INFLUXDB_INIT_BUCKET=mybucket
+      - DOCKER_INFLUXDB_INIT_RETENTION=1w
+      - DOCKER_INFLUXDB_INIT_ADMIN_TOKEN=myadmintoken
+    volumes:
+      - influxdb2-chat-history:/etc/influxdb2
+      - influxdb2-chat-history:/var/lib/influxdb2
+    healthcheck:
+      test: "curl -f http://localhost:8086/health"
+      interval: 10s
+      timeout: 5s
+
+  influxcli-seeder:
+    build: 
+      context: .
+      dockerfile: ./influxdb/Dockerfile.InfluxCli_seeder
+    container_name: influxcli-seeder-chat-history
+    volumes:
+      - ./influxdb/chat-history_seed.csv:/chat-history_seed.csv
+    depends_on:
+      influxdb:
+        condition: service_healthy
+
+volumes:
+  influxdb2-chat-history:
