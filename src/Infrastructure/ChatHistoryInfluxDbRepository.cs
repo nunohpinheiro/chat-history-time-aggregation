@@ -6,7 +6,7 @@ using InfluxDB.Client.Writes;
 
 namespace ChatHistory.Infrastructure;
 
-internal class ChatHistoryInfluxDbRepository
+internal class ChatHistoryInfluxDbRepository : IChatHistoryRepository
 {
     private readonly string _bucket;
     private readonly string _measurement;
@@ -93,11 +93,11 @@ internal class ChatHistoryInfluxDbRepository
     private static int GetPageOffset(int pageNumber, int pageSize)
         => (pageNumber - 1) * pageSize;
 
+    private static string GetFormatDateTime(UtcDateTime datetime)
+        => datetime.Value.ToString("u").Replace(" ", "T");
+
     private string GetBaseQuery(UtcDateTime startRange, UtcDateTime endRange)
         => $"from(bucket:\"{_bucket}\")" +
         $"|> range(start: {GetFormatDateTime(startRange)}, stop: {GetFormatDateTime(endRange)})" +
         $"|> filter(fn: (r) => r[\"_measurement\"] == \"{_measurement}\")";
-
-    private string GetFormatDateTime(UtcDateTime datetime)
-        => datetime.Value.ToString("u").Replace(" ", "T");
 }

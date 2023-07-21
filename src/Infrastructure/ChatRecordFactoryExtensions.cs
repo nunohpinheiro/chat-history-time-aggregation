@@ -3,7 +3,7 @@ using InfluxDB.Client.Core.Flux.Domain;
 
 namespace ChatHistory.Infrastructure;
 
-internal static class ChatHistoryFactoryExtensions
+internal static class ChatRecordFactoryExtensions
 {
     internal static List<ChatAggregateRecord> ToChatAggregateRecords(this List<FluxTable> tables, Granularity granularity)
         => tables.SelectMany(table =>
