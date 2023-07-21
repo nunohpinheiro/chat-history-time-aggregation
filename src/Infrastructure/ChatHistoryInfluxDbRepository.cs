@@ -1,47 +1,103 @@
-﻿using InfluxDB.Client;
-using InfluxDB.Client.Core.Flux.Domain;
+﻿using ChatHistory.Domain;
+using ChatHistory.Domain.ValueObjects;
+using InfluxDB.Client;
+using InfluxDB.Client.Api.Domain;
+using InfluxDB.Client.Writes;
 
 namespace ChatHistory.Infrastructure;
 
 internal class ChatHistoryInfluxDbRepository
 {
+    private readonly string _bucket;
+    private readonly string _measurement;
+    private readonly string _organization;
     private readonly string _token;
+    private readonly string _url;
 
-    public ChatHistoryInfluxDbRepository()
+    public ChatHistoryInfluxDbRepository(string organization, string bucket)
     {
+        _bucket = bucket; // "mybucket";
+        _measurement = "chat-history";
+        _organization = organization; // "myorg";
         _token = "myadmintoken";
+        _url = "http://localhost:8086";
     }
 
-    public async Task<IEnumerable<ChatRecord>> GetMinuteChatEvents()
+    public async Task AddChatHistoryEvent(ChatHistoryEvent chatHistoryEvent)
     {
-        var client = new InfluxDBClient("http://localhost:8086", _token);
+        using var influxDbClient = new InfluxDBClient(_url, _token);
+        var writeApi = influxDbClient.GetWriteApiAsync();
 
-        var queryApi = client.GetQueryApi();
-        var tables = await queryApi.QueryAsync(
-            "from(bucket:\"mybucket\")" +
-            "|> range(start: 0)" +
+        var point = PointData
+            .Measurement(_measurement)
+            .Tag("event-type", chatHistoryEvent.EventType.ToDashedEvent())
+            .Tag("minute-format", chatHistoryEvent.MinuteFormat)
+            .Tag("hour-format", chatHistoryEvent.HourFormat)
+            .Tag("day", ((int)chatHistoryEvent.Day).ToString())
+            .Tag("month", ((int)chatHistoryEvent.Month).ToString())
+            .Tag("year", ((int)chatHistoryEvent.Year).ToString())
+            .Tag("user", chatHistoryEvent.User)
+            .Field("minute-event", chatHistoryEvent.MinuteEvent)
+            .Timestamp(chatHistoryEvent.Timestamp, WritePrecision.S);
+
+        await writeApi.WritePointAsync(point, _bucket, _organization);
+    }
+
+    public async Task<List<ChatAggregateRecord>> ReadChatAggregateRecords(
+        Granularity granularity, PositiveInt pageNumber, PositiveInt pageSize, UtcDateTime startRange, UtcDateTime endRange)
+    {
+        using var influxDbClient = new InfluxDBClient(_url, _token);
+
+        var tables = await influxDbClient.GetQueryApi().QueryAsync(
+            GetBaseQuery(startRange, endRange) +
+            "|> drop(columns: [\"_measurement\", \"_start\", \"_stop\"])" +
+            $"|> group(columns: [{GetGroupColumns(granularity)}])" +
+            "|> count()" +
+            "|> group()" +
+            $"|> sort(columns: [{GetGroupColumns(granularity)}])" +
+            GetPageQuery(pageNumber, pageSize),
+            _organization);
+
+        return tables.ToChatAggregateRecords(granularity);
+    }
+
+    public async Task<List<ChatMinuteRecord>> ReadChatMinuteRecords(
+        PositiveInt pageNumber, PositiveInt pageSize, UtcDateTime startRange, UtcDateTime endRange)
+    {
+        using var influxDbClient = new InfluxDBClient(_url, _token);
+
+        var tables = await influxDbClient.GetQueryApi().QueryAsync(
+            GetBaseQuery(startRange, endRange) +
             "|> drop(columns: [\"_measurement\", \"_start\", \"_stop\", \"_field\"])" +
             "|> group()" +
-            "|> sort(columns: [\"_time\"])",
-            "myorg");
+            "|> sort(columns: [\"_time\"])" +
+            GetPageQuery(pageNumber, pageSize),
+            _organization);
 
-        var chatHist = GetChatHistory(tables);
-        return chatHist;
+        return tables.ToChatMinuteRecords();
     }
 
-    private static List<ChatRecord> GetChatHistory(List<FluxTable> tables)
-        => tables.SelectMany(table =>
-            table.Records.Select(record =>
-                new ChatRecord
-                {
-                    Day = Convert.ToInt32(record.GetValueByKey("day")),
-                    EventType = record.GetValueByKey("event-type").ToString(),
-                    HourFormat = record.GetValueByKey("hour-format").ToString(),
-                    MinuteEvent = record.GetValueByKey("_value").ToString(),
-                    MinuteFormat = record.GetValueByKey("minute-format").ToString(),
-                    Month = Convert.ToInt32(record.GetValueByKey("month")),
-                    User = record.GetValueByKey("user").ToString(),
-                    Timestamp = (DateTime)record.GetTimeInDateTime()!,
-                    Year = Convert.ToInt32(record.GetValueByKey("year"))
-                })).ToList();
+    private static string GetGroupColumns(Granularity granularity)
+        => granularity switch
+        {
+            Granularity.Hourly => "\"year\", \"month\", \"day\", \"hour-format\", \"event-type\"",
+            Granularity.Daily => "\"year\", \"month\", \"day\", \"event-type\"",
+            Granularity.Monthly => "\"year\", \"month\", \"event-type\"",
+            Granularity.Yearly => "\"year\", \"event-type\"",
+            _ => throw new InvalidOperationException($"Granularity value of {granularity} is not supported")
+        };
+
+    private static string GetPageQuery(int pageNumber, int pageSize)
+        => $"|> limit(n:{pageSize},offset:{GetPageOffset(pageNumber, pageSize)})";
+
+    private static int GetPageOffset(int pageNumber, int pageSize)
+        => (pageNumber - 1) * pageSize;
+
+    private string GetBaseQuery(UtcDateTime startRange, UtcDateTime endRange)
+        => $"from(bucket:\"{_bucket}\")" +
+        $"|> range(start: {GetFormatDateTime(startRange)}, stop: {GetFormatDateTime(endRange)})" +
+        $"|> filter(fn: (r) => r[\"_measurement\"] == \"{_measurement}\")";
+
+    private string GetFormatDateTime(UtcDateTime datetime)
+        => datetime.Value.ToString("u").Replace(" ", "T");
 }
