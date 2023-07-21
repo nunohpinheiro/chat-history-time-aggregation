@@ -22,17 +22,8 @@ public class ChatHistoryInfluxDbRepositoryTests : IClassFixture<ChatHistoryInflu
         var timestamp1 = new DateTime(today.Year, today.Month, today.Day, 9, 30, 0);
         var timestamp2 = timestamp1.AddMinutes(15);
 
-        ChatHistoryEvent chatHistoryEvent1 = new(
-            EventType.Comment,
-            timestamp1,
-            Fixture.Create<string>(),
-            commentText: Fixture.Create<string>());
-
-        ChatHistoryEvent chatHistoryEvent2 = new(
-            EventType.HighFiveOtherUser,
-            timestamp2,
-            Fixture.Create<string>(),
-            highFivedPerson: Fixture.Create<string>());
+        var chatHistoryEvent1 = ArrangeChatHistoryEvent(Fixture.Create<EventType>(), timestamp1);
+        var chatHistoryEvent2 = ArrangeChatHistoryEvent(Fixture.Create<EventType>(), timestamp2);
 
         // Act
         await Repository!.AddChatHistoryEvent(chatHistoryEvent2);
@@ -43,26 +34,76 @@ public class ChatHistoryInfluxDbRepositoryTests : IClassFixture<ChatHistoryInflu
         chatMinuteRecords
             .Should().NotBeNull();
         AssertChatRecordsAreOrdered(chatMinuteRecords);
-        AssertChatRecordsMatch(chatMinuteRecords, chatHistoryEvent1, chatHistoryEvent2);
+        AssertRecordsContainEvent(chatMinuteRecords, chatHistoryEvent1);
+        AssertRecordsContainEvent(chatMinuteRecords, chatHistoryEvent2);
     }
 
-    private static void AssertChatRecordsAreOrdered(IEnumerable<ChatMinuteRecord> chatMinuteRecords)
+    [Theory]
+    [InlineData(Granularity.Hourly, EventType.EnterRoom, 12)]
+    [InlineData(Granularity.Daily, EventType.LeaveRoom, 14)]
+    [InlineData(Granularity.Monthly, EventType.Comment, 16)]
+    [InlineData(Granularity.Yearly, EventType.HighFiveOtherUser, 18)]
+    public async Task AddChatHistoryEvent_ReadChatAggregateRecords_EventsSaved_ReturnInAscendingTime(
+        Granularity granularity, EventType eventType, int initialHour)
     {
-        for (var i = 0; i < chatMinuteRecords.Count() - 1; i++)
+        // Arrange
+        var today = DateTime.Today;
+        var timestamp1 = new DateTime(today.Year, today.Month, today.Day, initialHour, 10, 0);
+        var timestamp2 = timestamp1.AddMinutes(15);
+
+        var chatHistoryEvent1 = ArrangeChatHistoryEvent(eventType, timestamp1);
+        var chatHistoryEvent2 = ArrangeChatHistoryEvent(eventType, timestamp2);
+
+        // Act
+        await Repository!.AddChatHistoryEvent(chatHistoryEvent2);
+        await Repository.AddChatHistoryEvent(chatHistoryEvent1);
+        var chatAggregateRecords = await Repository.ReadChatAggregateRecords(granularity, 1, 50, timestamp1.AddMinutes(-15), timestamp2.AddMinutes(15));
+
+        // Assert
+        chatAggregateRecords
+            .Should().NotBeNull();
+        AssertChatRecordsAreOrdered(chatAggregateRecords);
+        AssertRecordsContainEvent(chatAggregateRecords, chatHistoryEvent1, granularity);
+        AssertRecordsContainEvent(chatAggregateRecords, chatHistoryEvent2, granularity);
+    }
+
+    private static ChatHistoryEvent ArrangeChatHistoryEvent(EventType eventType, DateTime timestamp)
+        => eventType switch
+        {
+            EventType.Comment => new ChatHistoryEvent(
+                eventType, timestamp, Fixture.Create<string>(), commentText: Fixture.Create<string>()),
+            EventType.HighFiveOtherUser => new ChatHistoryEvent(
+                eventType, timestamp, Fixture.Create<string>(), highFivedPerson: Fixture.Create<string>()),
+            _ => new ChatHistoryEvent(eventType, timestamp, Fixture.Create<string>())
+        };
+
+    private static void AssertChatRecordsAreOrdered(List<ChatMinuteRecord> chatMinuteRecords)
+    {
+        for (var i = 0; i < chatMinuteRecords.Count - 1; i++)
         {
             chatMinuteRecords.ElementAt(i).Timestamp.Value
                 .Should().BeBefore(chatMinuteRecords.ElementAt(i + 1).Timestamp.Value);
         }
     }
 
-    private static void AssertChatRecordsMatch(
-        IEnumerable<ChatMinuteRecord> chatMinuteRecords, ChatHistoryEvent chatHistoryEvent1, ChatHistoryEvent chatHistoryEvent2)
+    private static void AssertChatRecordsAreOrdered(List<ChatAggregateRecord> chatAggregateRecords)
     {
-        AssertRecordsContainEvent(chatMinuteRecords, chatHistoryEvent1);
-        AssertRecordsContainEvent(chatMinuteRecords, chatHistoryEvent2);
+        for (var i = 0; i < chatAggregateRecords.Count - 1; i++)
+        {
+            var record1 = chatAggregateRecords.ElementAt(i);
+            var time1 = GetComparableTime(record1);
+
+            var record2 = chatAggregateRecords.ElementAt(i + 1);
+            var time2 = GetComparableTime(record2);
+
+            time1.Should().BeLessThanOrEqualTo(time2);
+        }
+
+        static int GetComparableTime(ChatAggregateRecord record)
+            => int.Parse($"{record.Year}{record.Month}{record.Day}{record.HourFormat}".Split(" ").First());
     }
 
-    private static void AssertRecordsContainEvent(IEnumerable<ChatMinuteRecord> chatMinuteRecords, ChatHistoryEvent chatHistoryEvent)
+    private static void AssertRecordsContainEvent(List<ChatMinuteRecord> chatMinuteRecords, ChatHistoryEvent chatHistoryEvent)
         => chatMinuteRecords.SingleOrDefault(
             r => r.MinuteEvent == chatHistoryEvent.MinuteEvent
             && r.MinuteFormat == chatHistoryEvent.MinuteFormat
@@ -70,6 +111,19 @@ public class ChatHistoryInfluxDbRepositoryTests : IClassFixture<ChatHistoryInflu
             && r.Day == chatHistoryEvent.Day
             && r.Month == chatHistoryEvent.Month
             && r.Year == chatHistoryEvent.Year)
+        .Should()
+        .NotBeNull();
+
+    private static void AssertRecordsContainEvent(
+        List<ChatAggregateRecord> chatAggregateRecords, ChatHistoryEvent chatHistoryEvent, Granularity granularity)
+        => chatAggregateRecords.SingleOrDefault(
+            r => r.Count >= 1
+            && r.EventType == chatHistoryEvent.EventType
+            && r.Granularity == granularity
+            && r.HourFormat == (granularity == Granularity.Hourly ? chatHistoryEvent.HourFormat.Value : null)
+            && r.Day == (granularity <= Granularity.Daily ? chatHistoryEvent.Day.Value : null)
+            && r.Month == (granularity <= Granularity.Monthly ? chatHistoryEvent.Month.Value : null)
+            && r.Year == (granularity <= Granularity.Yearly ? chatHistoryEvent.Year.Value : null))
         .Should()
         .NotBeNull();
 }
