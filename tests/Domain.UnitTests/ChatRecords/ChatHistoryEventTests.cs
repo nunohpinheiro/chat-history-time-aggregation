@@ -1,4 +1,6 @@
-﻿namespace ChatHistory.Domain.UnitTests;
+﻿using ChatHistory.Domain.ChatRecords;
+
+namespace ChatHistory.Domain.UnitTests.ChatRecords;
 
 [UsesVerify]
 public class ChatHistoryEventTests : SnapshotTestsBase
@@ -12,7 +14,7 @@ public class ChatHistoryEventTests : SnapshotTestsBase
     [InlineData(EventType.HighFiveOtherUser)]
     public async Task Ctor_ValidInputs_SnapshotIsMatched(EventType eventType)
     {
-        ChatHistoryEvent arrangedRecord = new(
+        ChatRecordEvent arrangedRecord = new(
             eventType,
             new DateTime(1993, 2, 4, 14, 37, 0),
             "John Doe",
@@ -30,7 +32,7 @@ public class ChatHistoryEventTests : SnapshotTestsBase
     [InlineData(EventType.HighFiveOtherUser)]
     public void Ctor_CommentOrHighFive_WithoutOptionalInputs_ThrowsArgumentException(EventType eventType)
     {
-        var act = () => new ChatHistoryEvent(eventType, Fixture.Create<DateTime>(), Fixture.Create<string>());
+        var act = () => new ChatRecordEvent(eventType, Fixture.Create<DateTime>(), Fixture.Create<string>());
         act.Should().Throw<ArgumentException>();
     }
 }

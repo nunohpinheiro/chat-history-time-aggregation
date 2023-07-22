@@ -1,4 +1,4 @@
-﻿namespace ChatHistory.Domain;
+﻿namespace ChatHistory.Domain.ChatRecords;
 
 public enum EventType
 {

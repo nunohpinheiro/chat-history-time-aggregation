@@ -1,4 +1,6 @@
-﻿namespace ChatHistory.Domain.UnitTests;
+﻿using ChatHistory.Domain.ChatRecords;
+
+namespace ChatHistory.Domain.UnitTests.ChatRecords;
 
 [UsesVerify]
 public class ChatAggregateRecordTests : SnapshotTestsBase

@@ -1,4 +1,4 @@
-﻿using ChatHistory.Domain;
+﻿using ChatHistory.Domain.ChatRecords;
 using ChatHistory.Infrastructure.Persistence;
 using Microsoft.Extensions.Options;
 
@@ -76,14 +76,14 @@ public class ChatHistoryInfluxDbRepositoryTests : IClassFixture<ChatHistoryInflu
         AssertRecordsContainEvent(chatAggregateRecords, chatHistoryEvent2, granularity);
     }
 
-    private static ChatHistoryEvent ArrangeChatHistoryEvent(EventType eventType, DateTime timestamp)
+    private static ChatRecordEvent ArrangeChatHistoryEvent(EventType eventType, DateTime timestamp)
         => eventType switch
         {
-            EventType.Comment => new ChatHistoryEvent(
+            EventType.Comment => new ChatRecordEvent(
                 eventType, timestamp, Fixture.Create<string>(), commentText: Fixture.Create<string>()),
-            EventType.HighFiveOtherUser => new ChatHistoryEvent(
+            EventType.HighFiveOtherUser => new ChatRecordEvent(
                 eventType, timestamp, Fixture.Create<string>(), highFivedPerson: Fixture.Create<string>()),
-            _ => new ChatHistoryEvent(eventType, timestamp, Fixture.Create<string>())
+            _ => new ChatRecordEvent(eventType, timestamp, Fixture.Create<string>())
         };
 
     private static void AssertChatRecordsAreOrdered(List<ChatMinuteRecord> chatMinuteRecords)
@@ -112,7 +112,7 @@ public class ChatHistoryInfluxDbRepositoryTests : IClassFixture<ChatHistoryInflu
             => int.Parse($"{record.Year}{record.Month}{record.Day}{record.HourFormat}".Split(" ").First());
     }
 
-    private static void AssertRecordsContainEvent(List<ChatMinuteRecord> chatMinuteRecords, ChatHistoryEvent chatHistoryEvent)
+    private static void AssertRecordsContainEvent(List<ChatMinuteRecord> chatMinuteRecords, ChatRecordEvent chatHistoryEvent)
         => chatMinuteRecords.SingleOrDefault(
             r => r.MinuteEvent == chatHistoryEvent.MinuteEvent
             && r.MinuteFormat == chatHistoryEvent.MinuteFormat
@@ -124,7 +124,7 @@ public class ChatHistoryInfluxDbRepositoryTests : IClassFixture<ChatHistoryInflu
         .NotBeNull();
 
     private static void AssertRecordsContainEvent(
-        List<ChatAggregateRecord> chatAggregateRecords, ChatHistoryEvent chatHistoryEvent, Granularity granularity)
+        List<ChatAggregateRecord> chatAggregateRecords, ChatRecordEvent chatHistoryEvent, Granularity granularity)
         => chatAggregateRecords.SingleOrDefault(
             r => r.Count >= 1
             && r.EventType == chatHistoryEvent.EventType

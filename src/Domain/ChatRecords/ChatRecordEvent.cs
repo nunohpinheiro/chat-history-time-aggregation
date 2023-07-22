@@ -1,8 +1,8 @@
 ﻿using ChatHistory.Domain.ValueObjects;
 
-namespace ChatHistory.Domain;
+namespace ChatHistory.Domain.ChatRecords;
 
-public record ChatHistoryEvent
+public record ChatRecordEvent
 {
     public readonly EventType EventType;
     public readonly NonEmptyString MinuteFormat;
@@ -14,7 +14,7 @@ public record ChatHistoryEvent
     public readonly NonEmptyString MinuteEvent;
     public readonly UtcDateTime Timestamp;
 
-    public ChatHistoryEvent(
+    public ChatRecordEvent(
         EventType eventType,
         DateTime timestamp,
         string user,

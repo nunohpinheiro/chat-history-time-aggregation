@@ -1,5 +1,5 @@
 ﻿using Ardalis.GuardClauses;
-using ChatHistory.Domain;
+using ChatHistory.Domain.ChatRecords;
 using ChatHistory.Domain.ValueObjects;
 using InfluxDB.Client;
 using InfluxDB.Client.Api.Domain;
@@ -27,7 +27,7 @@ internal class ChatHistoryInfluxDbRepository : IChatHistoryRepository
         _url = Guard.Against.NullOrWhiteSpace(influxDbOptions.Url);
     }
 
-    public async Task AddChatHistoryEvent(ChatHistoryEvent chatHistoryEvent)
+    public async Task AddChatHistoryEvent(ChatRecordEvent chatHistoryEvent)
     {
         using var influxDbClient = new InfluxDBClient(_url, _token);
         var writeApi = influxDbClient.GetWriteApiAsync();

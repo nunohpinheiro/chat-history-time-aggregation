@@ -1,4 +1,4 @@
-﻿using ChatHistory.Domain;
+﻿using ChatHistory.Domain.ChatRecords;
 using ChatHistory.Infrastructure.Persistence;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;

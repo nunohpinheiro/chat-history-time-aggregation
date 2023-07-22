@@ -1,4 +1,4 @@
-﻿using ChatHistory.Domain;
+﻿using ChatHistory.Domain.ChatRecords;
 using InfluxDB.Client.Core.Flux.Domain;
 
 namespace ChatHistory.Infrastructure.Persistence;
@@ -12,7 +12,7 @@ internal static class ChatRecordFactoryExtensions
                 {
                     Count = Convert.ToInt32(record.GetValueByKey("_value")),
                     Day = record.GetOptionalInt("day"),
-                    EventType = record.GetValueByKey("event-type").ToString()!.ToEvent(),
+                    EventType = record.GetValueByKey("event-type").ToString()!.ToEventType(),
                     Granularity = granularity,
                     HourFormat = record.GetValueByKey("hour-format")?.ToString()!,
                     Month = record.GetOptionalInt("month"),

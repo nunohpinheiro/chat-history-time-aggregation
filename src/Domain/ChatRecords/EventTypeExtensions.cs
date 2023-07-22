@@ -1,8 +1,8 @@
-﻿using ChatHistory.Domain;
+﻿using ChatHistory.Domain.ChatRecords;
 
 namespace ChatHistory.Infrastructure.Persistence;
 
-internal static class EventTypeExtensions
+public static class EventTypeExtensions
 {
     private const string EnterRoomDash = "enter-the-room";
     private const string LeaveRoomDash = "leave-the-room";
@@ -25,7 +25,7 @@ internal static class EventTypeExtensions
         { HighFiveOtherUserDash, EventType.HighFiveOtherUser },
     };
 
-    internal static string ToDashedEvent(this EventType eventType) => EventToDashDictionary[eventType];
+    public static string ToDashedEvent(this EventType eventType) => EventToDashDictionary[eventType];
 
-    internal static EventType ToEvent(this string dashedEventType) => DashToEventDictionary[dashedEventType];
+    public static EventType ToEventType(this string dashedEventType) => DashToEventDictionary[dashedEventType];
 }

@@ -1,6 +1,6 @@
 ﻿using ChatHistory.Domain.ValueObjects;
 
-namespace ChatHistory.Domain;
+namespace ChatHistory.Domain.ChatRecords;
 
 public record ChatMinuteRecord
 {
