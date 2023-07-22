@@ -1,6 +1,6 @@
 ﻿using ChatHistory.Domain;
 
-namespace ChatHistory.Infrastructure;
+namespace ChatHistory.Infrastructure.Persistence;
 
 internal static class EventTypeExtensions
 {

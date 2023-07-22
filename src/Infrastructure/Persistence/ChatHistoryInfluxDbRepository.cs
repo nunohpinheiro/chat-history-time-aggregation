@@ -1,10 +1,12 @@
-﻿using ChatHistory.Domain;
+﻿using Ardalis.GuardClauses;
+using ChatHistory.Domain;
 using ChatHistory.Domain.ValueObjects;
 using InfluxDB.Client;
 using InfluxDB.Client.Api.Domain;
 using InfluxDB.Client.Writes;
+using Microsoft.Extensions.Options;
 
-namespace ChatHistory.Infrastructure;
+namespace ChatHistory.Infrastructure.Persistence;
 
 internal class ChatHistoryInfluxDbRepository : IChatHistoryRepository
 {
@@ -14,13 +16,15 @@ internal class ChatHistoryInfluxDbRepository : IChatHistoryRepository
     private readonly string _token;
     private readonly string _url;
 
-    public ChatHistoryInfluxDbRepository(string organization, string bucket)
+    public ChatHistoryInfluxDbRepository(IOptions<InfluxDbSettingsOptions> influxDbOptionsAccessor)
     {
-        _bucket = bucket; // "mybucket";
-        _measurement = "chat-history";
-        _organization = organization; // "myorg";
-        _token = "myadmintoken";
-        _url = "http://localhost:8086";
+        var influxDbOptions = Guard.Against.Null(influxDbOptionsAccessor.Value);
+
+        _bucket = Guard.Against.NullOrWhiteSpace(influxDbOptions.Bucket);
+        _measurement = Guard.Against.NullOrWhiteSpace(influxDbOptions.Measurement);
+        _organization = Guard.Against.NullOrWhiteSpace(influxDbOptions.Organization);
+        _token = Guard.Against.NullOrWhiteSpace(influxDbOptions.Token);
+        _url = Guard.Against.NullOrWhiteSpace(influxDbOptions.Url);
     }
 
     public async Task AddChatHistoryEvent(ChatHistoryEvent chatHistoryEvent)

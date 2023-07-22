@@ -1,4 +1,6 @@
-using ChatHistory.Domain;
+﻿using ChatHistory.Domain;
+using ChatHistory.Infrastructure.Persistence;
+using Microsoft.Extensions.Options;
 
 namespace ChatHistory.Infrastructure.IntegrationTests;
 
@@ -9,9 +11,16 @@ public class ChatHistoryInfluxDbRepositoryTests : IClassFixture<ChatHistoryInflu
 
     public ChatHistoryInfluxDbRepositoryTests()
     {
-        Repository = new(
-            ChatHistoryInfluxDbRepositoryTestsFixture.TestOrganizationName,
-            ChatHistoryInfluxDbRepositoryTestsFixture.TestBucketName);
+        InfluxDbSettingsOptions influxDbOptions = new()
+        {
+            Bucket = ChatHistoryInfluxDbRepositoryTestsFixture.TestBucketName,
+            Measurement = "chat-history",
+            Organization = ChatHistoryInfluxDbRepositoryTestsFixture.TestOrganizationName,
+            Token = "myadmintoken",
+            Url = "http://localhost:8086"
+        };
+
+        Repository = new(Options.Create(influxDbOptions));
     }
 
     [Fact]

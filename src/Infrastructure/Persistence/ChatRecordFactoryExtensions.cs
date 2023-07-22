@@ -1,7 +1,7 @@
 ﻿using ChatHistory.Domain;
 using InfluxDB.Client.Core.Flux.Domain;
 
-namespace ChatHistory.Infrastructure;
+namespace ChatHistory.Infrastructure.Persistence;
 
 internal static class ChatRecordFactoryExtensions
 {
