@@ -20,14 +20,19 @@ public record ChatAggregateRecord
             _ => throw new NotImplementedException($"Granularity {Granularity} is not mapped to a text phrase")
         };
 
-    private string AggregatedEventPhrase => $"{Count} {PersonPhrase} {EventPhrase}";
+    private string AggregatedEventPhrase
+        => EventType switch
+        {
+            EventType.Comment => $"{Count} {EventPhrase}",
+            _ => $"{Count} {PersonPhrase} {EventPhrase}"
+        };
 
     private string EventPhrase
         => EventType switch
         {
             EventType.EnterRoom => "entered",
             EventType.LeaveRoom => "left",
-            EventType.Comment => "comments",
+            EventType.Comment => Count > 1 ? "comments" : "comment",
             EventType.HighFiveOtherUser => "high-fived another person",
             _ => throw new NotImplementedException($"Event type {EventType} is not mapped to an event phrase")
         };

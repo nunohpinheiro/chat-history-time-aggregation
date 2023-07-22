@@ -1,0 +1,27 @@
+﻿{
+  EventType: HighFiveOtherUser,
+  MinuteFormat: {
+    Value: 02:37  PM
+  },
+  HourFormat: {
+    Value: 02  PM
+  },
+  Day: {
+    Value: 4
+  },
+  Month: {
+    Value: 2
+  },
+  Year: {
+    Value: 1993
+  },
+  User: {
+    Value: John Doe
+  },
+  MinuteEvent: {
+    Value: high-fives "Person For High-Fives"
+  },
+  Timestamp: {
+    Value: 1993-02-04 14:37 Utc
+  }
+}
