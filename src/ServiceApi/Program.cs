@@ -1,19 +1,18 @@
+using ChatHistory.Domain.ChatRecords;
 using ChatHistory.Infrastructure;
-using ChatHistory.ServiceApi.HealthChecks;
-using ChatHistory.ServiceApi.OpenApi;
+using ChatHistory.ServiceApi.AddChatHistory;
+using ChatHistory.ServiceApi.ApiConfiguration;
+using Microsoft.AspNetCore.Mvc;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services
-    .AddEndpointsApiExplorer()
-    .AddOpenApiSwagger()
+    .AddServiceApi()
     .AddInfrastructure(builder.Configuration);
 
 var application = builder.Build();
 
 application
-    .UseOpenApiSwagger()
-    .AddHealthCheckEndpoints()
-    .UseHttpsRedirection();
+    .UseServiceApi();
 
 application.Run();

@@ -1,7 +1,7 @@
 ﻿using ChatHistory.ServiceApi.HealthChecks;
 using Microsoft.OpenApi.Models;
 
-namespace ChatHistory.ServiceApi.OpenApi;
+namespace ChatHistory.ServiceApi.ApiConfiguration;
 
 internal static class OpenApiExtensions
 {
@@ -9,12 +9,12 @@ internal static class OpenApiExtensions
         => services.AddSwaggerGen(options =>
         {
             options.SwaggerDoc(
-                "v1",
+                ApiMetadata.Version,
                 new OpenApiInfo
                 {
-                    Title = "Chat History API",
-                    Version = "v1",
-                    Description = "API to get chat history at varying levels of time-based aggregation, as well as adding chat events to the history"
+                    Title = ApiMetadata.Name,
+                    Version = ApiMetadata.Version,
+                    Description = ApiMetadata.Description
                 });
 
             options.DocumentHealthCheckEndpoints();
@@ -27,11 +27,11 @@ internal static class OpenApiExtensions
         {
             o.RouteTemplate = "docs/{documentName}/open-api";
         });
-        
+
         app.UseSwaggerUI(o =>
         {
             o.RoutePrefix = "docs/index";
-            o.SwaggerEndpoint($"/docs/v1/open-api", "v1");
+            o.SwaggerEndpoint($"/docs/{ApiMetadata.Version}/open-api", ApiMetadata.Version);
         });
 
         return app;
