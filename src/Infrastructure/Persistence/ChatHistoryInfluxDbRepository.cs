@@ -31,7 +31,7 @@ internal class ChatHistoryInfluxDbRepository : IChatHistoryRepository
     {
         using var influxDbClient = new InfluxDBClient(_url, _token);
         var writeApi = influxDbClient.GetWriteApiAsync();
-
+        
         var point = PointData
             .Measurement(_measurement)
             .Tag("event-type", chatHistoryEvent.EventType.ToDashedEvent())

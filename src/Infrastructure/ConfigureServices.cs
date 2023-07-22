@@ -11,7 +11,12 @@ public static class ConfigureServices
     {
         services
             .Configure<InfluxDbSettingsOptions>(configuration.GetSection(InfluxDbSettingsOptions.SectionKey))
-            .AddScoped<IChatHistoryRepository, ChatHistoryInfluxDbRepository>();
+            .AddScoped<IChatHistoryRepository, ChatHistoryInfluxDbRepository>()
+            .AddHealthChecks()
+            .AddInfluxDB(
+                configuration.GetValue<string>($"{InfluxDbSettingsOptions.SectionKey}:Url")!,
+                configuration.GetValue<string>($"{InfluxDbSettingsOptions.SectionKey}:Token")!,
+                name: "chat-history-influxdb-repository");
 
         return services;
     }

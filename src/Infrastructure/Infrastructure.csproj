@@ -9,6 +9,7 @@
     </PropertyGroup>
 
     <ItemGroup>
+      <PackageReference Include="AspNetCore.HealthChecks.InfluxDB" Version="7.0.0--rc2.5" />
       <PackageReference Include="InfluxDB.Client" Version="4.12.0" />
       <PackageReference Include="InfluxDB.Client.Linq" Version="4.12.0" />
       <PackageReference Include="Microsoft.Extensions.Configuration.Abstractions" Version="7.0.0" />
