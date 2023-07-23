@@ -27,7 +27,7 @@ internal class ChatHistoryInfluxDbRepository : IChatHistoryRepository
         _url = Guard.Against.NullOrWhiteSpace(influxDbOptions.Url);
     }
 
-    public async Task AddChatHistoryEvent(ChatRecordEvent chatHistoryEvent)
+    public async Task AddChatHistoryEvent(ChatRecordEvent chatHistoryEvent, CancellationToken cancellationToken = default)
     {
         using var influxDbClient = new InfluxDBClient(_url, _token);
         var writeApi = influxDbClient.GetWriteApiAsync();
@@ -44,11 +44,11 @@ internal class ChatHistoryInfluxDbRepository : IChatHistoryRepository
             .Field("minute-event", chatHistoryEvent.MinuteEvent)
             .Timestamp(chatHistoryEvent.Timestamp, WritePrecision.S);
 
-        await writeApi.WritePointAsync(point, _bucket, _organization);
+        await writeApi.WritePointAsync(point, _bucket, _organization, cancellationToken);
     }
 
     public async Task<List<ChatAggregateRecord>> ReadChatAggregateRecords(
-        Granularity granularity, PositiveInt pageNumber, PositiveInt pageSize, UtcDateTime startRange, UtcDateTime endRange)
+        Granularity granularity, PositiveInt pageNumber, PositiveInt pageSize, UtcDateTime startRange, UtcDateTime endRange, CancellationToken cancellationToken = default)
     {
         using var influxDbClient = new InfluxDBClient(_url, _token);
 
@@ -60,13 +60,14 @@ internal class ChatHistoryInfluxDbRepository : IChatHistoryRepository
             "|> group()" +
             $"|> sort(columns: [{GetGroupColumns(granularity)}])" +
             GetPageQuery(pageNumber, pageSize),
-            _organization);
+            _organization,
+            cancellationToken);
 
         return tables.ToChatAggregateRecords(granularity);
     }
 
     public async Task<List<ChatMinuteRecord>> ReadChatMinuteRecords(
-        PositiveInt pageNumber, PositiveInt pageSize, UtcDateTime startRange, UtcDateTime endRange)
+        PositiveInt pageNumber, PositiveInt pageSize, UtcDateTime startRange, UtcDateTime endRange, CancellationToken cancellationToken = default)
     {
         using var influxDbClient = new InfluxDBClient(_url, _token);
 
@@ -76,7 +77,8 @@ internal class ChatHistoryInfluxDbRepository : IChatHistoryRepository
             "|> group()" +
             "|> sort(columns: [\"_time\"])" +
             GetPageQuery(pageNumber, pageSize),
-            _organization);
+            _organization,
+            cancellationToken);
 
         return tables.ToChatMinuteRecords();
     }

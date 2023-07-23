@@ -19,6 +19,7 @@ internal static class ConfigureServices
             .WithTags("Chat Records");
 
         chatHistory.MapGet("/", async (
+            CancellationToken token,
             [FromServices] ReadChatRecordsQueryHandler queryHandler,
             [FromQuery] Granularity granularity,
             [FromQuery] int? pageNumber = 1,
@@ -44,10 +45,11 @@ internal static class ConfigureServices
         // TODO: Check EventType issue returning 500 for invalid values
 
         chatHistory.MapPost("/", async (
+            CancellationToken token,
             [FromServices] CreateChatRecordCommandHandler commandHandler,
             [FromBody] CreateChatRecordCommand createChatRecordCommand)
             => (await commandHandler
-                .Handle(createChatRecordCommand))
+                .Handle(createChatRecordCommand, token))
                 .Match(
                     success => Results.Created("/chat-records", createChatRecordCommand),
                     failures => failures.ToValidationProblemDetails()))

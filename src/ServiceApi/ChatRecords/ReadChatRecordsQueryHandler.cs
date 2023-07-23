@@ -16,23 +16,23 @@ internal class ReadChatRecordsQueryHandler : QueryHandlerPipeline<ReadChatRecord
         ChatHistoryRepository = Guard.Against.Null(chatHistoryRepository);
     }
 
-    protected override Task<IEnumerable<string>> Execute(ReadChatRecordsQuery query)
+    protected override Task<IEnumerable<string>> Execute(ReadChatRecordsQuery query, CancellationToken cancellationToken)
     {
         query.StartDateTime.TryGetUtcDateTime(out UtcDateTime startDateTime);
         query.EndDateTime.TryGetUtcDateTime(out UtcDateTime endDateTime);
 
         return query.Granularity switch
         {
-            Granularity.MinuteByMinute => ReadMinuteRecords(query, startDateTime, endDateTime),
-            _ => ReadAggregatedRecords(query, startDateTime, endDateTime)
+            Granularity.MinuteByMinute => ReadMinuteRecords(query, startDateTime, endDateTime, cancellationToken),
+            _ => ReadAggregatedRecords(query, startDateTime, endDateTime, cancellationToken)
         };
     }
 
-    private async Task<IEnumerable<string>> ReadMinuteRecords(ReadChatRecordsQuery query, UtcDateTime startDateTime, UtcDateTime endDateTime)
-        => (await ChatHistoryRepository.ReadChatMinuteRecords(query.PageNumber, query.PageSize, startDateTime, endDateTime))
+    private async Task<IEnumerable<string>> ReadMinuteRecords(ReadChatRecordsQuery query, UtcDateTime startDateTime, UtcDateTime endDateTime, CancellationToken cancellationToken)
+        => (await ChatHistoryRepository.ReadChatMinuteRecords(query.PageNumber, query.PageSize, startDateTime, endDateTime, cancellationToken))
         .Select(r => r.ToText());
 
-    private async Task<IEnumerable<string>> ReadAggregatedRecords(ReadChatRecordsQuery query, UtcDateTime startDateTime, UtcDateTime endDateTime)
+    private async Task<IEnumerable<string>> ReadAggregatedRecords(ReadChatRecordsQuery query, UtcDateTime startDateTime, UtcDateTime endDateTime, CancellationToken cancellationToken)
         => (await ChatHistoryRepository.ReadChatAggregateRecords(query.Granularity, query.PageNumber, query.PageSize, startDateTime, endDateTime))
         .Select(r => r.ToText());
 }

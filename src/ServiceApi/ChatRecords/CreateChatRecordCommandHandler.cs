@@ -16,7 +16,7 @@ internal class CreateChatRecordCommandHandler : CommandHandlerPipeline<CreateCha
         ChatHistoryRepository = Guard.Against.Null(chatHistoryRepository);
     }
 
-    protected override async Task Execute(CreateChatRecordCommand command)
+    protected override async Task Execute(CreateChatRecordCommand command, CancellationToken cancellationToken = default)
     {
         command.Timestamp.TryGetUtcDateTime(out UtcDateTime timestamp);
 
@@ -26,6 +26,7 @@ internal class CreateChatRecordCommandHandler : CommandHandlerPipeline<CreateCha
                 timestamp,
                 command.User,
                 command.CommentText,
-                command.HighFivedPerson));
+                command.HighFivedPerson),
+            cancellationToken);
     }
 }

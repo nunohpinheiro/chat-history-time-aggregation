@@ -17,17 +17,17 @@ internal abstract class CommandHandlerPipeline<Tin> where Tin : class
         CommandValidator = Guard.Against.Null(commandValidator);
     }
 
-    protected abstract Task Execute(Tin command);
+    protected abstract Task Execute(Tin command, CancellationToken cancellationToken);
 
-    public async Task<OneOf<Success, List<ValidationFailure>>> Handle(Tin command)
+    public async Task<OneOf<Success, List<ValidationFailure>>> Handle(Tin command, CancellationToken cancellationToken = default)
     {
         Logger.Information("Handling command request of type {CommandType} for object {Command}", typeof(Tin), command);
 
-        var validationResult = await CommandValidator.ValidateAsync(command);
+        var validationResult = await CommandValidator.ValidateAsync(command, cancellationToken);
         if (!validationResult.IsValid)
             return validationResult.Errors;
 
-        await Execute(command);
+        await Execute(command, cancellationToken);
 
         Logger.Information("Finished handling command request of type {CommandType}", typeof(Tin));
         return new Success();
