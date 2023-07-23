@@ -2,6 +2,17 @@ version: '3.8'
 
 services:
 
+  chat-history-api:
+    build: 
+      context: .
+      dockerfile: ./src/ServiceApi/Dockerfile
+    container_name: chat-history-api
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - InfluxDbSettings__Url=http://influxdb-chat-history:8086
+    ports:
+      - "8080:8080"
+
   influxdb:
     image: influxdb:2.7.1-alpine
     container_name: influxdb-chat-history
