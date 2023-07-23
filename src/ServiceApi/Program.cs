@@ -1,18 +1,20 @@
-using ChatHistory.Domain.ChatRecords;
 using ChatHistory.Infrastructure;
-using ChatHistory.ServiceApi.AddChatHistory;
 using ChatHistory.ServiceApi.ApiConfiguration;
-using Microsoft.AspNetCore.Mvc;
+using ChatHistory.ServiceApi.ChatRecords;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services
+builder
+    .AddLogging()
+    .Services
+    .AddChatRecordsServices()
     .AddServiceApi()
     .AddInfrastructure(builder.Configuration);
 
 var application = builder.Build();
 
 application
-    .UseServiceApi();
+    .UseServiceApi()
+    .AddChatRecordsEndpoints();
 
 application.Run();

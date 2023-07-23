@@ -7,7 +7,7 @@ public class NonEmptyString : ValueOf<string, NonEmptyString>
     protected override void Validate()
     {
         if (!TryValidate())
-            throw new ArgumentException($"The value {Value} is null, empty string or white space(s).");
+            throw new ArgumentException($"The string must not be null, empty or white space(s).");
     }
 
     protected override bool TryValidate()

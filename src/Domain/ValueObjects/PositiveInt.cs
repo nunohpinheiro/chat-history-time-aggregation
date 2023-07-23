@@ -7,7 +7,7 @@ public class PositiveInt : ValueOf<int, PositiveInt>
     protected override void Validate()
     {
         if (!TryValidate())
-            throw new ArgumentException($"The value {Value} is not a positive integer");
+            throw new ArgumentException($"The value '{Value}' is not a positive integer");
     }
 
     protected override bool TryValidate()

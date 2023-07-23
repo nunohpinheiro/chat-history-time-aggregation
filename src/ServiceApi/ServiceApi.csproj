@@ -2,6 +2,7 @@
 
     <PropertyGroup>
         <TargetFramework>net7.0</TargetFramework>
+        <LangVersion>preview</LangVersion>
         <Nullable>enable</Nullable>
         <ImplicitUsings>enable</ImplicitUsings>
         <AssemblyName>ChatHistory.ServiceApi</AssemblyName>
@@ -14,9 +15,12 @@
 
     <ItemGroup>
         <PackageReference Include="AspNetCore.HealthChecks.UI.Client" Version="6.0.5" />
-        <PackageReference Include="Microsoft.AspNetCore.Mvc.Formatters.Json" Version="2.2.0" />
+        <PackageReference Include="FluentValidation.DependencyInjectionExtensions" Version="11.6.0" />
+        <PackageReference Include="Microsoft.AspNetCore.Mvc.Formatters.Json" Version="2.1.18" />
         <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="7.0.9" />
         <PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.18.1" />
+        <PackageReference Include="OneOf" Version="3.0.255" />
+        <PackageReference Include="Serilog.AspNetCore" Version="7.0.0" />
         <PackageReference Include="Swashbuckle.AspNetCore.Annotations" Version="6.5.0" />
         <PackageReference Include="Swashbuckle.AspNetCore.SwaggerGen" Version="6.5.0" />
         <PackageReference Include="Swashbuckle.AspNetCore.SwaggerUI" Version="6.5.0" />

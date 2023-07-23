@@ -34,8 +34,8 @@ public record ChatRecordEvent
     }
 
     private static string GetTimeAmPm(string format, DateTime timestamp)
-        => $"{string.Format(format, timestamp)} "
-        + (timestamp.Hour < 12 ? "AM" : "PM");
+        => $"{string.Format(format, timestamp)}".Trim()
+        + (timestamp.Hour < 12 ? "am" : "pm");
 
     private string GetMinuteEventPhrase(string commentText, string highFivedPerson)
         => EventType switch

@@ -1,6 +1,4 @@
-﻿using ChatHistory.Domain.ChatRecords;
-
-namespace ChatHistory.Infrastructure.Persistence;
+﻿namespace ChatHistory.Domain.ChatRecords;
 
 public static class EventTypeExtensions
 {
@@ -28,4 +26,7 @@ public static class EventTypeExtensions
     public static string ToDashedEvent(this EventType eventType) => EventToDashDictionary[eventType];
 
     public static EventType ToEventType(this string dashedEventType) => DashToEventDictionary[dashedEventType];
+
+    public static bool TryGetEventType(this string dashedEventType, out EventType eventType)
+        => DashToEventDictionary.TryGetValue(dashedEventType, out eventType);
 }
