@@ -30,8 +30,8 @@ public record ChatRecordEvent
         if ((highFivedPerson is not null) && eventType == EventType.HighFiveOtherUser)
             HighFivedPerson = highFivedPerson;
 
-        MinuteFormat = GetTimeAmPm("{0:hh:mm tt}", Timestamp);
-        HourFormat = GetTimeAmPm("{0:hh tt}", Timestamp);
+        MinuteFormat = GetTimeAmPm("{0:hh:mm}", Timestamp);
+        HourFormat = GetTimeAmPm("{0:hh}", Timestamp);
         Day = Timestamp.Value.Day;
         Month = Timestamp.Value.Month;
         Year = Timestamp.Value.Year;
