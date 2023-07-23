@@ -3,6 +3,7 @@ version: '3.8'
 services:
 
   chat-history-api:
+    profiles: ["app"]
     build: 
       context: .
       dockerfile: ./src/ServiceApi/Dockerfile
@@ -14,6 +15,7 @@ services:
       - "8080:8080"
 
   influxdb:
+    profiles: ["app", "infrastructure"]
     image: influxdb:2.7.1-alpine
     container_name: influxdb-chat-history
     ports:
@@ -38,6 +40,7 @@ services:
       timeout: 5s
 
   influxcli-seeder:
+    profiles: ["app", "infrastructure"]
     build: 
       context: .
       dockerfile: ./influxdb/Dockerfile.InfluxCli_seeder
