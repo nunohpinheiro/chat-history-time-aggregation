@@ -2,7 +2,7 @@
 using ChatHistory.ServiceApi.ChatRecords;
 using OneOf.Types;
 
-namespace ServiceApi.UnitTests;
+namespace ChatHistory.ServiceApi.UnitTests;
 
 public class CreateChatRecordCommandHandlerTests
 {

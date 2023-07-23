@@ -1,0 +1,8 @@
+﻿["2023-7-23, 01:51pm: User1 comments: \"sample comment 1\"",
+"2023-7-23, 01:56pm: User2 comments: \"sample comment 2\"",
+"2023-7-23, 02:01pm: User1 enters the room",
+"2023-7-23, 02:06pm: User2 enters the room",
+"2023-7-23, 02:11pm: User1 high-fives \"Mr. Other User\"",
+"2023-7-23, 02:16pm: User2 high-fives \"Mrs. Another User\"",
+"2023-7-23, 02:21pm: User1 leaves",
+"2023-7-23, 02:26pm: User2 leaves"]

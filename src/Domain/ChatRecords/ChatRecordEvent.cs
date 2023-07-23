@@ -16,7 +16,7 @@ public record ChatRecordEvent
 
     public ChatRecordEvent(
         EventType eventType,
-        DateTime timestamp,
+        UtcDateTime timestamp,
         string user,
         string commentText = null!,
         string highFivedPerson = null!)
