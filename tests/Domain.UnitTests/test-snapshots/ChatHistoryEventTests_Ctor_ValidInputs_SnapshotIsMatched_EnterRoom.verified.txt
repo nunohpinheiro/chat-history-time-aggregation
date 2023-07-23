@@ -1,9 +1,9 @@
 ﻿{
   MinuteFormat: {
-    Value: 02:37  PM
+    Value: 02:37pm
   },
   HourFormat: {
-    Value: 02  PM
+    Value: 02pm
   },
   Day: {
     Value: 4
