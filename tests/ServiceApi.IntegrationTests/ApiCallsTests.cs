@@ -89,7 +89,8 @@ public class ApiCallsTests : SnapshotTestsBase, IClassFixture<ChatHistoryInfluxD
             new(EventType.Comment.ToDashedEvent(), timestamp.AddMinutes(5).ToString(UtcDateTime.ValidFormat), user2, "sample comment 2", null!),
             new(EventType.EnterRoom.ToDashedEvent(), timestamp.AddMinutes(10).ToString(UtcDateTime.ValidFormat), user1, null!, null!),
             new(EventType.EnterRoom.ToDashedEvent(), timestamp.AddMinutes(15).ToString(UtcDateTime.ValidFormat), user2, null!, null!),
-            new(EventType.HighFiveOtherUser.ToDashedEvent(), timestamp.AddMinutes(20).ToString(UtcDateTime.ValidFormat), user1, null!, "Mr. Other User"),
+            new(EventType.HighFiveOtherUser.ToDashedEvent(), timestamp.AddMinutes(20).ToString(UtcDateTime.ValidFormat), user1, null!, "Mr. User"),
+            new(EventType.HighFiveOtherUser.ToDashedEvent(), timestamp.AddMinutes(22).ToString(UtcDateTime.ValidFormat), user2, null!, "Mrs. User"),
             new(EventType.HighFiveOtherUser.ToDashedEvent(), timestamp.AddMinutes(25).ToString(UtcDateTime.ValidFormat), user2, null!, "Mrs. Another User"),
             new(EventType.LeaveRoom.ToDashedEvent(), timestamp.AddMinutes(30).ToString(UtcDateTime.ValidFormat), user1, null!, null!),
             new(EventType.LeaveRoom.ToDashedEvent(), timestamp.AddMinutes(35).ToString(UtcDateTime.ValidFormat), user2, null!, null!)

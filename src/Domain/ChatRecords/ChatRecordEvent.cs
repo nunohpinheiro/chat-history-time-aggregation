@@ -10,8 +10,9 @@ public record ChatRecordEvent
     public readonly PositiveInt Day;
     public readonly PositiveInt Month;
     public readonly PositiveInt Year;
-    public readonly NonEmptyString User;
+    public readonly Username User;
     public readonly NonEmptyString MinuteEvent;
+    public readonly Username? HighFivedPerson;
     public readonly UtcDateTime Timestamp;
 
     public ChatRecordEvent(
@@ -25,6 +26,9 @@ public record ChatRecordEvent
         Timestamp = timestamp;
         User = user;
         MinuteEvent = GetMinuteEventPhrase(commentText, highFivedPerson);
+
+        if ((highFivedPerson is not null) && eventType == EventType.HighFiveOtherUser)
+            HighFivedPerson = highFivedPerson;
 
         MinuteFormat = GetTimeAmPm("{0:hh:mm tt}", Timestamp);
         HourFormat = GetTimeAmPm("{0:hh tt}", Timestamp);

@@ -12,7 +12,7 @@ internal static class ChatRecordFactoryExtensions
                 {
                     Count = Convert.ToInt32(record.GetValueByKey("_value")),
                     Day = record.GetOptionalInt("day"),
-                    EventType = record.GetValueByKey("event-type").ToString()!.ToEventType(),
+                    DashedEventType = record.GetValueByKey("event-type").ToString()!,
                     Granularity = granularity,
                     HourFormat = record.GetValueByKey("hour-format")?.ToString()!,
                     Month = record.GetOptionalInt("month"),

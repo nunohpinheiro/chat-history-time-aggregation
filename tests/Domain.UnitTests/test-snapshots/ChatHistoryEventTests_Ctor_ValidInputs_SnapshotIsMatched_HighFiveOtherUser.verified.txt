@@ -21,6 +21,9 @@
   MinuteEvent: {
     Value: high-fives "Person For High-Fives"
   },
+  HighFivedPerson: {
+    Value: Person For High-Fives
+  },
   Timestamp: {
     Value: 1993-02-04 14:37 Utc
   }

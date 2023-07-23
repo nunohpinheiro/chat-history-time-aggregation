@@ -3,12 +3,42 @@
 public record ChatAggregateRecord
 {
     public required int Count { get; init; }
-    public required EventType EventType { get; init; }
     public required Granularity Granularity { get; init; }
     public required string? HourFormat { get; init; }
     public required int? Day { get; init; }
     public required int? Month { get; init; }
     public required int Year { get; init; }
+    public required string DashedEventType { private get; init; }
+
+    public string Order => $"{Year}{Month}{Day}{HourFormat}";
+
+    public EventType EventType
+    {
+        get
+        {
+            if (DashedEventType.TryGetEventType(out var eventType))
+                return eventType;
+
+            var (highFiveEvent, _, _) = DashedEventType.GetHighFiveEventDetails();
+            return highFiveEvent;
+        }
+    }
+
+    public int? HighFiveReceiversCount { get; private set; }
+
+    public (string highFiveGiver, string highFiveReceiver) HighFiveUsers
+    {
+        get
+        {
+            var (_, highFiveGiver, highFiveReceiver) = DashedEventType.GetHighFiveEventDetails();
+            return (highFiveGiver, highFiveReceiver);
+        }
+    }
+
+    public void SetHighFiveReceiversCount(int highFiveReceiversCount)
+    {
+        HighFiveReceiversCount = highFiveReceiversCount;
+    }
 
     public string ToText()
         => Granularity switch
@@ -24,7 +54,7 @@ public record ChatAggregateRecord
         => EventType switch
         {
             EventType.Comment => $"{Count} {EventPhrase}",
-            _ => $"{Count} {PersonPhrase} {EventPhrase}"
+            _ => $"{Count} {GetPersonPhrase(Count)} {EventPhrase}"
         };
 
     private string EventPhrase
@@ -33,15 +63,15 @@ public record ChatAggregateRecord
             EventType.EnterRoom => "entered",
             EventType.LeaveRoom => "left",
             EventType.Comment => Count > 1 ? "comments" : "comment",
-            EventType.HighFiveOtherUser => "high-fived another person",
+            EventType.HighFiveOtherUser => $"high-fived {HighFiveReceiversCount} other {GetPersonPhrase((int)HighFiveReceiversCount!)}",
             _ => throw new NotImplementedException($"Event type {EventType} is not mapped to an event phrase")
         };
 
-    private string PersonPhrase
-        => Count switch
+    private static string GetPersonPhrase(int count)
+        => count switch
         {
             1 => "person",
             > 1 => "people",
-            _ => throw new NotImplementedException($"Count {Count} is not mapped to an event phrase")
+            _ => throw new NotImplementedException($"Count {count} is not mapped to an event phrase")
         };
 }

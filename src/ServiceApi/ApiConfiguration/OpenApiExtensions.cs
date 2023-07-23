@@ -1,4 +1,5 @@
 ﻿using ChatHistory.ServiceApi.HealthChecks;
+using MicroElements.Swashbuckle.FluentValidation.AspNetCore;
 using Microsoft.OpenApi.Models;
 
 namespace ChatHistory.ServiceApi.ApiConfiguration;
@@ -19,7 +20,8 @@ internal static class OpenApiExtensions
 
             options.DocumentHealthCheckEndpoints();
             options.EnableAnnotations();
-        });
+        })
+        .AddFluentValidationRulesToSwagger();
 
     internal static WebApplication UseOpenApiSwagger(this WebApplication app)
     {

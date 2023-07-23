@@ -1,4 +1,4 @@
 ﻿["2022: 2 comments",
 "2022: 2 people entered",
-"2022: 2 people high-fived another person",
-"2022: 2 people left"]
+"2022: 2 people left",
+"2022: 2 people high-fived 3 other people"]

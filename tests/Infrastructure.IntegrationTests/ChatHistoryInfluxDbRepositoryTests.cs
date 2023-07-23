@@ -48,25 +48,31 @@ public class ChatHistoryInfluxDbRepositoryTests : IClassFixture<ChatHistoryInflu
     }
 
     [Theory]
-    [InlineData(Granularity.Hourly, EventType.EnterRoom, 12)]
+    [InlineData(Granularity.Hourly, EventType.HighFiveOtherUser, 12)]
     [InlineData(Granularity.Daily, EventType.LeaveRoom, 14)]
     [InlineData(Granularity.Monthly, EventType.Comment, 16)]
-    [InlineData(Granularity.Yearly, EventType.HighFiveOtherUser, 18)]
+    [InlineData(Granularity.Yearly, EventType.EnterRoom, 18)]
     public async Task AddChatHistoryEvent_ReadChatAggregateRecords_EventsSaved_ReturnInAscendingTime(
         Granularity granularity, EventType eventType, int initialHour)
     {
         // Arrange
         var today = DateTime.Today;
         var timestamp1 = new DateTime(today.Year, today.Month, today.Day, initialHour, 10, 0);
-        var timestamp2 = timestamp1.AddMinutes(15);
+        var timestamp2 = timestamp1.AddMinutes(5);
+        var timestamp3 = timestamp1.AddHours(3);
+        var timestamp4 = timestamp3.AddMinutes(5);
 
         var chatHistoryEvent1 = ArrangeChatHistoryEvent(eventType, timestamp1);
         var chatHistoryEvent2 = ArrangeChatHistoryEvent(eventType, timestamp2);
+        var chatHistoryEvent3 = ArrangeChatHistoryEvent(eventType, timestamp3);
+        var chatHistoryEvent4 = ArrangeChatHistoryEvent(eventType, timestamp4);
 
         // Act
+        await Repository!.AddChatHistoryEvent(chatHistoryEvent4);
+        await Repository!.AddChatHistoryEvent(chatHistoryEvent3);
         await Repository!.AddChatHistoryEvent(chatHistoryEvent2);
         await Repository.AddChatHistoryEvent(chatHistoryEvent1);
-        var chatAggregateRecords = await Repository.ReadChatAggregateRecords(granularity, 1, 50, timestamp1.AddMinutes(-15), timestamp2.AddMinutes(15));
+        var chatAggregateRecords = await Repository.ReadChatAggregateRecords(granularity, 1, 50, timestamp1.AddMinutes(-15), timestamp4.AddMinutes(15));
 
         // Assert
         chatAggregateRecords
@@ -109,7 +115,9 @@ public class ChatHistoryInfluxDbRepositoryTests : IClassFixture<ChatHistoryInflu
         }
 
         static int GetComparableTime(ChatAggregateRecord record)
-            => int.Parse($"{record.Year}{record.Month}{record.Day}{record.HourFormat}".Split(" ").First());
+            => int.Parse(record.Order
+            .TrimEnd("am".ToCharArray())
+            .TrimEnd("pm".ToCharArray()));
     }
 
     private static void AssertRecordsContainEvent(List<ChatMinuteRecord> chatMinuteRecords, ChatRecordEvent chatHistoryEvent)

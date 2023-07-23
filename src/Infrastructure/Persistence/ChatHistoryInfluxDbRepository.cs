@@ -31,10 +31,13 @@ internal class ChatHistoryInfluxDbRepository : IChatHistoryRepository
     {
         using var influxDbClient = new InfluxDBClient(_url, _token);
         var writeApi = influxDbClient.GetWriteApiAsync();
-        
+
         var point = PointData
             .Measurement(_measurement)
-            .Tag("event-type", chatHistoryEvent.EventType.ToDashedEvent())
+            .Tag("event-type",
+                chatHistoryEvent.EventType is EventType.HighFiveOtherUser
+                ? chatHistoryEvent.EventType.ToDetailHighFiveEvent(chatHistoryEvent.User, chatHistoryEvent.HighFivedPerson)
+                : chatHistoryEvent.EventType.ToDashedEvent())
             .Tag("minute-format", chatHistoryEvent.MinuteFormat)
             .Tag("hour-format", chatHistoryEvent.HourFormat)
             .Tag("day", ((int)chatHistoryEvent.Day).ToString())
@@ -63,7 +66,12 @@ internal class ChatHistoryInfluxDbRepository : IChatHistoryRepository
             _organization,
             cancellationToken);
 
-        return tables.ToChatAggregateRecords(granularity);
+        var aggregates = tables.ToChatAggregateRecords(granularity);
+        var high5Aggregates = aggregates.Where(a => a.EventType == EventType.HighFiveOtherUser).ToList();
+
+        return high5Aggregates.Any()
+            ? AggregateWithGroupedHighFives(aggregates, high5Aggregates)
+            : aggregates;
     }
 
     public async Task<List<ChatMinuteRecord>> ReadChatMinuteRecords(
@@ -106,4 +114,38 @@ internal class ChatHistoryInfluxDbRepository : IChatHistoryRepository
         => $"from(bucket:\"{_bucket}\")" +
         $"|> range(start: {GetFormatDateTime(startRange)}, stop: {GetFormatDateTime(endRange)})" +
         $"|> filter(fn: (r) => r[\"_measurement\"] == \"{_measurement}\")";
+
+    private static List<ChatAggregateRecord> AggregateWithGroupedHighFives(
+        List<ChatAggregateRecord> aggregates, List<ChatAggregateRecord> high5Aggregates)
+    {
+        var otherAggregates = aggregates.Except(high5Aggregates).ToList();
+        var high5Groups = high5Aggregates.GroupBy(a => a.Order).ToList();
+
+        Parallel.ForEach(high5Groups,
+            currentGroup =>
+            {
+                if (currentGroup.Any() is false)
+                    return;
+
+                var high5GiversCount = currentGroup.DistinctBy(h => h.HighFiveUsers.highFiveGiver).Count();
+                var high5ReceiversCount = currentGroup.DistinctBy(h => h.HighFiveUsers.highFiveReceiver).Count();
+
+                var groupAggregate = new ChatAggregateRecord
+                {
+                    Count = high5GiversCount,
+                    DashedEventType = EventType.HighFiveOtherUser.ToDashedEvent(),
+                    Day = currentGroup.First().Day,
+                    Granularity = currentGroup.First().Granularity,
+                    HourFormat = currentGroup.First().HourFormat,
+                    Month = currentGroup.First().Month,
+                    Year = currentGroup.First().Year
+                };
+
+                groupAggregate.SetHighFiveReceiversCount(high5ReceiversCount);
+
+                otherAggregates.Add(groupAggregate);
+            });
+
+        return otherAggregates.OrderBy(a => a.Order).ToList();
+    }
 }

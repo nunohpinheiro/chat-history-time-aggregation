@@ -1,4 +1,4 @@
 ﻿["2023-7-21, 01pm: 2 comments",
 "2023-7-21, 02pm: 2 people entered",
-"2023-7-21, 02pm: 2 people high-fived another person",
-"2023-7-21, 02pm: 2 people left"]
+"2023-7-21, 02pm: 2 people left",
+"2023-7-21, 02pm: 2 people high-fived 3 other people"]

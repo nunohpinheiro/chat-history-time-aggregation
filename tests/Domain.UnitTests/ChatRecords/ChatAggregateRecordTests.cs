@@ -16,12 +16,15 @@ public class ChatAggregateRecordTests : SnapshotTestsBase
         {
             Count = 837,
             Day = 4,
-            EventType = eventType,
+            DashedEventType = eventType.ToDashedEvent(),
             Granularity = granularity,
             HourFormat = "3 PM",
             Month = 2,
             Year = 1993
         };
+        
+        if (eventType is EventType.HighFiveOtherUser)
+            arrangedRecord.SetHighFiveReceiversCount(637);
 
         await Verify(arrangedRecord.ToText())
             .UseFileName($"{nameof(ChatAggregateRecordTests)}_{nameof(ToText_DependsOnEventTypeAndGranularity_SnapshotIsMatched)}_{eventType}_{granularity}")

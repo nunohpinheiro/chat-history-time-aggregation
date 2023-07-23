@@ -1,6 +1,7 @@
 ﻿using ChatHistory.Domain.ChatRecords;
 using ChatHistory.Domain.ValueObjects;
 using FluentValidation;
+using System.Text.RegularExpressions;
 
 namespace ChatHistory.ServiceApi.ChatRecords;
 
@@ -13,6 +14,8 @@ public record CreateChatRecordCommand(
 
 public class CreateChatRecordCommandValidator : AbstractValidator<CreateChatRecordCommand>
 {
+    private readonly Regex UserFormat = new(Username.UserFormatRegex, RegexOptions.Compiled, TimeSpan.FromSeconds(1));
+
     public CreateChatRecordCommandValidator()
     {
         RuleFor(c => c).NotEmpty();
@@ -27,7 +30,10 @@ public class CreateChatRecordCommandValidator : AbstractValidator<CreateChatReco
             .Must(t => t.TryGetUtcDateTime(out _))
             .WithMessage($"'{{PropertyName}}' must have a valid format: '{UtcDateTime.ValidFormat}'");
 
-        RuleFor(c => c.User).NotEmpty();
+        RuleFor(c => c.User)
+            .NotEmpty()
+            .Matches(UserFormat)
+            .WithMessage($"'{{PropertyName}}' must have a valid format: '{Username.UserFormatRegex}'");
 
         RuleFor(c => c.CommentText)
             .Must((command, _) => CheckCommentTextIsValid(command))
