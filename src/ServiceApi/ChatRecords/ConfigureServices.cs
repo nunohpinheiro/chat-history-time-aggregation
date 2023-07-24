@@ -42,8 +42,6 @@ internal static class ConfigureServices
             .ProducesProblem(StatusCodes.Status400BadRequest)
             .ProducesProblem(StatusCodes.Status500InternalServerError);
 
-        // TODO: Check EventType issue returning 500 for invalid values
-
         chatHistory.MapPost("/", async (
             CancellationToken token,
             [FromServices] CreateChatRecordCommandHandler commandHandler,

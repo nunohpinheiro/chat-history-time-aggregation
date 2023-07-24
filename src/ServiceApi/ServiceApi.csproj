@@ -38,4 +38,8 @@
       <ProjectReference Include="..\Infrastructure\Infrastructure.csproj" />
     </ItemGroup>
 
+    <Target Name="SwaggerPostBuildTarget" AfterTargets="Build">
+        <Exec Command="dotnet tool run swagger tofile --output $(ProjectPath)\..\..\..\ChatHistoryAPI_OpenAPI.yaml $(TargetPath) v1" ContinueOnError="true" />
+    </Target>
+
 </Project>
