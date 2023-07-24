@@ -37,18 +37,7 @@ internal static class ConfigureServices
                 .Match(
                     eventsList => Results.Ok(eventsList),
                     failures => failures.ToValidationProblemDetails()))
-            .WithDescription("Query the chat records collection according to set parameters")
-            .WithOpenApi(generatedOperation =>
-            {
-                var startDateTime = generatedOperation.Parameters[3];
-                startDateTime.Description = "Start of the search query, must be in format \"yyyy-MM-ddTHH:mm:ssZ\"";
-                var endDateTime = generatedOperation.Parameters[4];
-                endDateTime.Description = "End of the search query, must be in format \"yyyy-MM-ddTHH:mm:ssZ\"";
-                return generatedOperation;
-            })
-            .Produces<IEnumerable<string>>(StatusCodes.Status200OK)
-            .ProducesProblem(StatusCodes.Status400BadRequest)
-            .ProducesProblem(StatusCodes.Status500InternalServerError);
+            .AddReadChatRecordsOpenApi();
 
         chatHistory.MapPost("/", async (
             CancellationToken token,
@@ -59,28 +48,47 @@ internal static class ConfigureServices
                 .Match(
                     success => Results.Created("/chat-records", createChatRecordCommand),
                     failures => failures.ToValidationProblemDetails()))
-            .WithDescription("Create a new chat record")
-            .WithOpenApi(generatedOperation =>
-            {
-                var requestBodyDescription =
-                    $$"""
-                    ```json
-                    {
-                      "eventType": "{{EventType.EnterRoom.ToDashedEvent()}}", // Or {{EventType.LeaveRoom.ToDashedEvent()}}, {{EventType.Comment.ToDashedEvent()}}, {{EventType.HighFiveOtherUser.ToDashedEvent()}}
-                      "timestamp": "2023-07-17T00:00:00Z", // When the event occurs, must be in format {{UtcDateTime.ValidFormat}}
-                      "user": "Mrs. Sample User", // Who performs the event, must respect the regex {{Username.UserFormatRegex}}
-                      "commentText": "Sample comment", // Used in {{EventType.Comment.ToDashedEvent()}} event types (it is the comment itself)
-                      "highFivedPerson": "Mr. HighFive Receiver" // Used in {{EventType.HighFiveOtherUser.ToDashedEvent()}} event types (the person that receives the high-five), must respect the regex {{Username.UserFormatRegex}}
-                    }
-                    """;
-                generatedOperation.RequestBody.Description = requestBodyDescription;
-                return generatedOperation;
-            })
-            .Accepts<CreateChatRecordCommand>(MediaTypeNames.Application.Json)
-            .Produces<IEnumerable<string>>(StatusCodes.Status201Created)
-            .ProducesValidationProblem()
-            .ProducesProblem(StatusCodes.Status500InternalServerError);
+            .AddCreateChatRecordOpenApi();
 
         return application;
     }
+
+    private static RouteHandlerBuilder AddCreateChatRecordOpenApi(this RouteHandlerBuilder routeHandlerBuilder)
+        => routeHandlerBuilder
+        .WithDescription("Create a new chat record")
+        .WithOpenApi(generatedOperation =>
+        {
+            var requestBodyDescription =
+                $$"""
+                ```json
+                {
+                  "eventType": "{{EventType.EnterRoom.ToDashedEvent()}}", // Or {{EventType.LeaveRoom.ToDashedEvent()}}, {{EventType.Comment.ToDashedEvent()}}, {{EventType.HighFiveOtherUser.ToDashedEvent()}}
+                  "timestamp": "2023-07-17T00:00:00Z", // When the event occurs, must be in format {{UtcDateTime.ValidFormat}}
+                  "user": "Mrs. Sample User", // Who performs the event, must respect the regex {{Username.UserFormatRegex}}
+                  "commentText": "Sample comment", // Used in {{EventType.Comment.ToDashedEvent()}} event types (it is the comment itself)
+                  "highFivedPerson": "Mr. HighFive Receiver" // Used in {{EventType.HighFiveOtherUser.ToDashedEvent()}} event types (the person that receives the high-five), must respect the regex {{Username.UserFormatRegex}}
+                }
+                """;
+            generatedOperation.RequestBody.Description = requestBodyDescription;
+            return generatedOperation;
+        })
+        .Accepts<CreateChatRecordCommand>(MediaTypeNames.Application.Json)
+        .Produces<CreateChatRecordCommand>(StatusCodes.Status201Created)
+        .ProducesValidationProblem()
+        .ProducesProblem(StatusCodes.Status500InternalServerError);
+
+    private static RouteHandlerBuilder AddReadChatRecordsOpenApi(this RouteHandlerBuilder routeHandlerBuilder)
+        => routeHandlerBuilder
+        .WithDescription("Query the chat records collection according to set parameters")
+        .WithOpenApi(generatedOperation =>
+        {
+            var startDateTime = generatedOperation.Parameters[3];
+            startDateTime.Description = "Start of the search query, must be in format \"yyyy-MM-ddTHH:mm:ssZ\"";
+            var endDateTime = generatedOperation.Parameters[4];
+            endDateTime.Description = "End of the search query, must be in format \"yyyy-MM-ddTHH:mm:ssZ\"";
+            return generatedOperation;
+        })
+        .Produces<IEnumerable<string>>(StatusCodes.Status200OK)
+        .ProducesProblem(StatusCodes.Status400BadRequest)
+        .ProducesProblem(StatusCodes.Status500InternalServerError);
 }
