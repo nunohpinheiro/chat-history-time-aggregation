@@ -41,7 +41,9 @@ public class CreateChatRecordCommandValidator : AbstractValidator<CreateChatReco
 
         RuleFor(c => c.HighFivedPerson)
             .Must((command, _) => CheckHighFivedPersonIsValid(command))
-            .WithMessage(command => SetMessagePropertyMustBeFulfilled(command.EventType));
+            .WithMessage(command => SetMessagePropertyMustBeFulfilled(command.EventType))
+            .Matches(UserFormat)
+            .WithMessage($"'{{PropertyName}}' must have a valid format: '{Username.UserFormatRegex}'");
     }
 
     private static bool CheckCommentTextIsValid(CreateChatRecordCommand command)

@@ -13,7 +13,7 @@ The API has its persistence in InfluxDB, which is brought up - with data seed - 
 
 * Open API file is generated whenever the main project `ServiceApi` builds
     * Find it in [`ChatHistoryAPI_OpenAPI.yaml`](https://github.com/nunohpinheiro/chat-history-time-aggregation/blob/main/ChatHistoryAPI_OpenAPI.yaml)
-        * With visuals: https://petstore.swagger.io/?url=https://github.com/nunohpinheiro/chat-history-time-aggregation/blob/main/ChatHistoryAPI_OpenAPI.yaml
+        * ([With visuals in PetStore IO](https://petstore.swagger.io/?url=https://raw.githubusercontent.com/nunohpinheiro/chat-history-time-aggregation/main/ChatHistoryAPI_OpenAPI.yaml))
 
 ### Brief endpoints description
 The API has two endpoints:
@@ -48,11 +48,11 @@ Queries the chat records collection according to different query parameters:
 Creates a new chat record in each call, with the following request body:
 ```json
 {
-  "eventType": "enter-the-room", // Or "leave-the-room", "comment", "high-five-another-user"
-  "timestamp": "2023-07-17T00:00:00Z", // When the event occurs, must be in format "yyyy-MM-ddTHH:mm:ssZ"
-  "user": "string", // Who performs the event, must respect the regex "^[ A-Za-z0-9_@.-]*$"
-  "commentText": "string", // Used in "comment" event types (the comment's text)
-  "highFivedPerson": "string" // Used in "high-five-another-user" event types (the person that receives the high-five)
+  "eventType": "enter-the-room", // Or leave-the-room, comment, high-five-another-user
+  "timestamp": "2023-07-17T00:00:00Z", // When the event occurs, must be in format yyyy-MM-ddTHH:mm:ssZ
+  "user": "Mrs. Sample User", // Who performs the event, must respect the regex ^[ A-Za-z0-9_@.-]*$
+  "commentText": "Sample comment", // Used in comment event types (it is the comment itself)
+  "highFivedPerson": "Mr. HighFive Receiver" // Used in high-five-another-user event types (the person that receives the high-five), must respect the regex ^[ A-Za-z0-9_@.-]*$
 }
 ```
 
@@ -65,13 +65,16 @@ Three services are included in the `docker-compose`:
 * `influxdb-chat-history`: InfluxDB instance that persists the chat records
 * `influxcli-seeder-chat-history`: InfluxDB data seeder, which puts initial chat records into InfluxDB - data and Dockerfile can be found in folder [influxdb](https://github.com/nunohpinheiro/chat-history-time-aggregation/tree/main/influxdb)
 
+(More details below, in [Run the application and use it](#run-the-application-and-use-it))
+
 ## Run the application and use it
 
 In the root of the repository, execute:
 * `docker compose --profile infrastructure up` to lift up the required infrastructure external to the app
     * Includes InfluxDb and its seeder
     * For development/testing purposes, with the app being ran from other means (IDE, console,...)
+        * Running it from Visual Studio, with profile `https`, will launch the Swagger UI automatically in https://localhost:7048/docs/index
 * `docker compose --profile app up` to lift up the application (Web REST API) and the required external infrastructure
     * Includes the `ChatHistory API` (running in port `8080`), InfluxDb and its seeder
-        * Use the API with its Swagger UI: [http://localhost:8080/docs/index](http://localhost:8080/docs/index)
+        * Use the API with its Swagger UI: http://localhost:8080/docs/index
     * For "production-like" purposes, to actually use the API
