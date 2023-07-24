@@ -12,7 +12,10 @@ public class ReadChatRecordsQueryHandlerTests
 
     public ReadChatRecordsQueryHandlerTests()
     {
-        Handler = new(new ReadChatRecordsQueryValidator(), RepositoryMock.Object);
+        Handler = new(
+            new LoggerFixtureMock<ReadChatRecordsQueryHandler>(),
+            new ReadChatRecordsQueryValidator(),
+            RepositoryMock.Object);
     }
 
     [Fact]

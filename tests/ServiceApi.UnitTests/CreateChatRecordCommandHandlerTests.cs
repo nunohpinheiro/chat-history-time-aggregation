@@ -12,7 +12,10 @@ public class CreateChatRecordCommandHandlerTests
 
     public CreateChatRecordCommandHandlerTests()
     {
-        Handler = new(new CreateChatRecordCommandValidator(), RepositoryMock.Object);
+        Handler = new(
+            new LoggerFixtureMock<CreateChatRecordCommandHandler>(),
+            new CreateChatRecordCommandValidator(),
+            RepositoryMock.Object);
     }
 
     [Fact]

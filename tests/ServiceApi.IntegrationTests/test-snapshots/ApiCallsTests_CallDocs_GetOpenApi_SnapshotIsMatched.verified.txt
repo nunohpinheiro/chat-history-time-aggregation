@@ -45,6 +45,7 @@
           {
             "name": "startDateTime",
             "in": "query",
+            "description": "Start of the search query, must be in format \"yyyy-MM-ddTHH:mm:ssZ\"",
             "style": "form",
             "schema": {
               "type": "string",
@@ -54,6 +55,7 @@
           {
             "name": "endDateTime",
             "in": "query",
+            "description": "End of the search query, must be in format \"yyyy-MM-ddTHH:mm:ssZ\"",
             "style": "form",
             "schema": {
               "type": "string",
@@ -103,6 +105,7 @@
         ],
         "description": "Create a new chat record",
         "requestBody": {
+          "description": "```json\n{\n  \"eventType\": \"enter-the-room\", // Or leave-the-room, comment, high-five-another-user\n  \"timestamp\": \"2023-07-17T00:00:00Z\", // When the event occurs, must be in format yyyy-MM-ddTHH:mm:ssZ\n  \"user\": \"Mrs. Sample User\", // Who performs the event, must respect the regex ^[ A-Za-z0-9_@.-]*$\n  \"commentText\": \"Sample comment\", // Used in comment event types (it is the comment itself)\n  \"highFivedPerson\": \"Mr. HighFive Receiver\" // Used in high-five-another-user event types (the person that receives the high-five), must respect the regex ^[ A-Za-z0-9_@.-]*$\n}",
           "content": {
             "application/json": {
               "schema": {
@@ -118,10 +121,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "array",
-                  "items": {
-                    "type": "string"
-                  }
+                  "$ref": "#/components/schemas/CreateChatRecordCommand"
                 }
               }
             }

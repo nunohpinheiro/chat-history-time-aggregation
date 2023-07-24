@@ -3,17 +3,17 @@ using FluentValidation;
 using FluentValidation.Results;
 using OneOf;
 using OneOf.Types;
-using Serilog;
 
 namespace ChatHistory.ServiceApi.Pipelines;
 
 internal abstract class CommandHandlerPipeline<Tin> where Tin : class
 {
-    private readonly Serilog.ILogger Logger = Log.Logger.ForContext<CommandHandlerPipeline<Tin>>();
+    protected readonly ILogger Logger;
     private readonly IValidator<Tin> CommandValidator;
 
-    public CommandHandlerPipeline(IValidator<Tin> commandValidator)
+    public CommandHandlerPipeline(ILogger logger, IValidator<Tin> commandValidator)
     {
+        Logger = logger;
         CommandValidator = Guard.Against.Null(commandValidator);
     }
 
@@ -21,15 +21,18 @@ internal abstract class CommandHandlerPipeline<Tin> where Tin : class
 
     public async Task<OneOf<Success, List<ValidationFailure>>> Handle(Tin command, CancellationToken cancellationToken = default)
     {
-        Logger.Information("Handling command request of type {CommandType} for object {Command}", typeof(Tin), command);
+        Logger.LogInformation("Handling command request of type {CommandType} for object {Command}", typeof(Tin), command);
 
         var validationResult = await CommandValidator.ValidateAsync(command, cancellationToken);
         if (!validationResult.IsValid)
+        {
+            Logger.LogError("Errors validating {CommandType}. Details: {Errors}", typeof(Tin), validationResult.Errors);
             return validationResult.Errors;
+        }
 
         await Execute(command, cancellationToken);
 
-        Logger.Information("Finished handling command request of type {CommandType}", typeof(Tin));
+        Logger.LogInformation("Finished handling command request of type {CommandType}", typeof(Tin));
         return new Success();
     }
 }

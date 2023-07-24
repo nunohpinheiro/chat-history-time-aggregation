@@ -10,8 +10,11 @@ internal class ReadChatRecordsQueryHandler : QueryHandlerPipeline<ReadChatRecord
 {
     private readonly IChatHistoryRepository ChatHistoryRepository;
 
-    public ReadChatRecordsQueryHandler(IValidator<ReadChatRecordsQuery> queryValidator, IChatHistoryRepository chatHistoryRepository)
-        : base(queryValidator)
+    public ReadChatRecordsQueryHandler(
+        ILogger<ReadChatRecordsQueryHandler> logger,
+        IValidator<ReadChatRecordsQuery> queryValidator,
+        IChatHistoryRepository chatHistoryRepository)
+        : base(logger, queryValidator)
     {
         ChatHistoryRepository = Guard.Against.Null(chatHistoryRepository);
     }

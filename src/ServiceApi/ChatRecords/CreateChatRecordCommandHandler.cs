@@ -10,8 +10,11 @@ internal class CreateChatRecordCommandHandler : CommandHandlerPipeline<CreateCha
 {
     private readonly IChatHistoryRepository ChatHistoryRepository;
 
-    public CreateChatRecordCommandHandler(IValidator<CreateChatRecordCommand> commandValidator, IChatHistoryRepository chatHistoryRepository)
-        : base(commandValidator)
+    public CreateChatRecordCommandHandler(
+        ILogger<CreateChatRecordCommandHandler> logger,
+        IValidator<CreateChatRecordCommand> commandValidator,
+        IChatHistoryRepository chatHistoryRepository)
+        : base(logger, commandValidator)
     {
         ChatHistoryRepository = Guard.Against.Null(chatHistoryRepository);
     }
